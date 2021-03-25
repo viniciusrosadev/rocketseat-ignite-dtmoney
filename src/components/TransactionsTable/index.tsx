@@ -1,11 +1,22 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { api } from "../../services/api"
 import { Container } from "./styles"
 
+interface Transaction {
+    id: number;
+    title: string;
+    amount: number;
+    type: string;
+    category: string;
+    createAt: string;
+}
+
 export function TransactionsTable() {
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+
     useEffect(() => {
         api.get('transactions')
-        .then(response => console.log(response.data))
+            .then(response => setTransactions(response.data.transactions))
     }, [])
 
     return (
@@ -19,27 +30,20 @@ export function TransactionsTable() {
                         <th>Data</th>
                     </tr>
                 </thead>
-
+                {transactions.map(transaction => (
+                    <tr>
+                        <td>{transaction.title}</td>
+                        <td className="deposit">{transaction.amount}</td>
+                        <td>{new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                        }).format(transaction.amount)}</td>
+                        <td>{transaction.category}</td>
+                        <td>{new Intl.DateTimeFormat('pt-BR').format(new Date(transaction.createAt))}</td>
+                    </tr>
+                ))}
                 <tbody>
-                    <tr>
-                        <td>Desenvolvimento de website</td>
-                        <td className="deposit">R$ 12.000</td>
-                        <td>Desenvolvimento</td>
-                        <td>20/02/2021</td>
-                    </tr>
-                    <tr>
-                        <td>Mc lanche infeliz</td>
-                        <td className="withdraw">- R$ 10</td>
-                        <td>Desenvolvimento</td>
-                        <td>20/02/2021</td>
-                    </tr>
-                    <tr>
-                        <td>Desenvolvimento de website</td>
-                        <td>R$ 12.000</td>
-                        <td>Desenvolvimento</td>
-                        <td>20/02/2021</td>
-                    </tr>
-                    
+
                 </tbody>
             </table>
         </Container>
